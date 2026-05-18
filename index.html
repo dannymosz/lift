@@ -778,7 +778,10 @@ function renderHome(){
   document.getElementById('stat-prs').textContent=data.totalPRs||0;
 
   // week number
-  document.getElementById('home-week').textContent='W'+(getWeekKey().split('W')[1]);
+  const now=new Date();
+  const jan1=new Date(now.getFullYear(),0,1);
+  const weekNum=Math.ceil(((now-jan1)/86400000+jan1.getDay()+1)/7);
+  document.getElementById('home-week').textContent='W'+weekNum;
 
   // week strip
   const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
