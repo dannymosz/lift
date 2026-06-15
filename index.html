@@ -1567,62 +1567,127 @@ function renderBodyweight(){
 // ── INIT ──
 renderHome();
 
-// ── APP ICON (canvas-generated, works for iOS Add to Home Screen) ──
+// ── APP ICON (canvas-generated) ──
 (function(){
-  const S = 180;
+  const S = 512; // High-res for retina
   const c = document.createElement('canvas');
   c.width = S; c.height = S;
   const ctx = c.getContext('2d');
-
-  // Background
-  ctx.fillStyle = '#F2F2F7';
-  ctx.beginPath();
-  const r = 38;
-  ctx.moveTo(r, 0);
-  ctx.lineTo(S-r, 0);
-  ctx.quadraticCurveTo(S, 0, S, r);
-  ctx.lineTo(S, S-r);
-  ctx.quadraticCurveTo(S, S, S-r, S);
-  ctx.lineTo(r, S);
-  ctx.quadraticCurveTo(0, S, 0, S-r);
-  ctx.lineTo(0, r);
-  ctx.quadraticCurveTo(0, 0, r, 0);
-  ctx.closePath();
-  ctx.fill();
-
-  // Dumbbell — all pieces in #3478F6
-  ctx.fillStyle = '#3478F6';
   const cx = S/2, cy = S/2;
 
-  function rRect(x, y, w, h, rad) {
+  // ── Rounded rect clip (iOS squircle approximation) ──
+  function squircle(ctx, s) {
+    const r = s * 0.22;
     ctx.beginPath();
-    ctx.moveTo(x + rad, y);
-    ctx.lineTo(x + w - rad, y);
-    ctx.quadraticCurveTo(x+w, y, x+w, y+rad);
-    ctx.lineTo(x+w, y+h-rad);
-    ctx.quadraticCurveTo(x+w, y+h, x+w-rad, y+h);
-    ctx.lineTo(x+rad, y+h);
-    ctx.quadraticCurveTo(x, y+h, x, y+h-rad);
-    ctx.lineTo(x, y+rad);
-    ctx.quadraticCurveTo(x, y, x+rad, y);
+    ctx.moveTo(r, 0);
+    ctx.lineTo(s-r, 0);
+    ctx.quadraticCurveTo(s, 0, s, r);
+    ctx.lineTo(s, s-r);
+    ctx.quadraticCurveTo(s, s, s-r, s);
+    ctx.lineTo(r, s);
+    ctx.quadraticCurveTo(0, s, 0, s-r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+  }
+
+  // Clip to squircle
+  squircle(ctx, S);
+  ctx.clip();
+
+  // ── Background: deep navy-to-blue gradient ──
+  const bg = ctx.createLinearGradient(0, 0, S, S);
+  bg.addColorStop(0,   '#1a2a4a');
+  bg.addColorStop(0.5, '#1c3a6e');
+  bg.addColorStop(1,   '#0f1f3d');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, S, S);
+
+  // ── Subtle radial glow in center ──
+  const glow = ctx.createRadialGradient(cx, cy-30, 10, cx, cy-30, 260);
+  glow.addColorStop(0,   'rgba(52,120,246,0.35)');
+  glow.addColorStop(0.5, 'rgba(52,120,246,0.10)');
+  glow.addColorStop(1,   'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, S, S);
+
+  // ── Helper: filled rounded rect ──
+  function rRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y,   x+w, y+r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h);
+    ctx.quadraticCurveTo(x,   y+h, x,   y+h-r);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x,   y,   x+r, y);
     ctx.closePath();
     ctx.fill();
   }
 
+  // ── Drop shadow for dumbbell ──
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur  = 18;
+  ctx.shadowOffsetY = 8;
+
+  // ── Dumbbell body gradient: white with slight blue sheen ──
+  const dg = ctx.createLinearGradient(0, cy-80, 0, cy+80);
+  dg.addColorStop(0,   '#ffffff');
+  dg.addColorStop(0.45,'#e8f0ff');
+  dg.addColorStop(1,   '#c5d8ff');
+  ctx.fillStyle = dg;
+
+  // Scale up from 180 to 512 — multiply all coords by 512/180 ≈ 2.844
+  const sc = S / 180;
+  const bx = cx, by = cy; // pivot
+
   // Center bar
-  rRect(cx-40, cy-4.5, 80, 9, 4);
-  // Left collar
-  rRect(cx-47, cy-9, 7, 18, 3);
-  // Right collar
-  rRect(cx+40, cy-9, 7, 18, 3);
-  // Left outer plate
-  rRect(cx-64, cy-22, 17, 44, 5);
-  // Right outer plate
-  rRect(cx+47, cy-22, 17, 44, 5);
-  // Left inner plate
-  rRect(cx-77, cy-16, 13, 32, 4);
-  // Right inner plate
-  rRect(cx+64, cy-16, 13, 32, 4);
+  rRect(bx-40*sc, by-4.5*sc, 80*sc, 9*sc, 4*sc);
+
+  // Collars
+  rRect(bx-47*sc, by-10*sc, 7*sc, 20*sc, 3*sc);
+  rRect(bx+40*sc, by-10*sc, 7*sc, 20*sc, 3*sc);
+
+  // Outer plates (taller, more pronounced)
+  rRect(bx-66*sc, by-24*sc, 19*sc, 48*sc, 6*sc);
+  rRect(bx+47*sc, by-24*sc, 19*sc, 48*sc, 6*sc);
+
+  // Inner plates
+  rRect(bx-80*sc, by-17*sc, 14*sc, 34*sc, 4*sc);
+  rRect(bx+66*sc, by-17*sc, 14*sc, 34*sc, 4*sc);
+
+  // ── Clear shadow, add a top-edge highlight sheen ──
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur  = 0;
+  ctx.shadowOffsetY = 0;
+
+  // Highlight line across top of bar
+  const hl = ctx.createLinearGradient(0, by-5*sc, 0, by-2*sc);
+  hl.addColorStop(0, 'rgba(255,255,255,0.9)');
+  hl.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = hl;
+  rRect(bx-40*sc, by-4.5*sc, 80*sc, 4*sc, 4*sc);
+
+  // ── "LIFT" wordmark below dumbbell ──
+  ctx.shadowColor   = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur    = 6;
+  ctx.shadowOffsetY = 2;
+  ctx.fillStyle     = 'rgba(255,255,255,0.92)';
+  ctx.font          = `900 ${Math.round(38*sc/2.844)}px -apple-system, "Inter", sans-serif`;
+  ctx.textAlign     = 'center';
+  ctx.textBaseline  = 'middle';
+  ctx.letterSpacing = '6px';
+  ctx.fillText('LIFT', cx, cy + 52*sc/2.844);
+
+  // ── Subtle vignette ──
+  ctx.shadowColor = 'transparent';
+  const vig = ctx.createRadialGradient(cx, cy, S*0.3, cx, cy, S*0.72);
+  vig.addColorStop(0, 'rgba(0,0,0,0)');
+  vig.addColorStop(1, 'rgba(0,0,0,0.28)');
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, S, S);
 
   const url = c.toDataURL('image/png');
   const link = document.getElementById('app-icon');
