@@ -6,8 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="LIFT">
-<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACrElEQVR4nO3cQVLbQBBAUZzKyXIsDpBjcShvWCYLNingO8KWMh37vS0USK1fM5INPp3Pr0/wmW+rD4C5xEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB+n7oT/9x89fF7768nw69LffjVVjPHDluHxKW76Bp6VjPCqOjUesj8vWjvGQOL50rPooy8fohpQkDtJNTysflzIPIMvteFFO5/PrLkdwC0l9avmQbSuka+LwfPE/uuKqWTlI4iCJg3TsG2/b/bkjPuzDy7QhjFg53t0rPeYN78AhjIjjowmj+Zdmnu/QOJhAHKQpN6Rl5nq7owk3nmVuHHefxZvJp2lbIYmDJA6SOEjiIImDNDeOl+fT5NcA9jL5NOe+zvFm7OAewdyVg+XEQRoax6PtJjPPd0Qc70Yzc1JHGziEKTekE2ax3LQhjFg5mEkcJHGQrolj2tbIFv6Rmj1d+bTylmF9FMTkP327Y5cvyhVuepS1vwy040WxrZDEQTokji+tbPamsnyMR60cG49VGZetHeOB28pfj1gZWywc45WfJsgjcENKEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgfpNzmPedF6GPzlAAAAAElFTkSuQmCC">
-<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAACrElEQVR4nO3cQVLbQBBAUZzKyXIsDpBjcShvWCYLNingO8KWMh37vS0USK1fM5INPp3Pr0/wmW+rD4C5xEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB+n7oT/9x89fF7768nw69LffjVVjPHDluHxKW76Bp6VjPCqOjUesj8vWjvGQOL50rPooy8fohpQkDtJNTysflzIPIMvteFFO5/PrLkdwC0l9avmQbSuka+LwfPE/uuKqWTlI4iCJg3TsG2/b/bkjPuzDy7QhjFg53t0rPeYN78AhjIjjowmj+Zdmnu/QOJhAHKQpN6Rl5nq7owk3nmVuHHefxZvJp2lbIYmDJA6SOEjiIImDNDeOl+fT5NcA9jL5NOe+zvFm7OAewdyVg+XEQRoax6PtJjPPd0Qc70Yzc1JHGziEKTekE2ax3LQhjFg5mEkcJHGQrolj2tbIFv6Rmj1d+bTylmF9FMTkP327Y5cvyhVuepS1vwy040WxrZDEQTokji+tbPamsnyMR60cG49VGZetHeOB28pfj1gZWywc45WfJsgjcENKEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgdJHCRxkMRBEgfpNzmPedF6GPzlAAAAAElFTkSuQmCC">
+<link rel="apple-touch-icon" id="app-icon" href="">
+<link rel="icon" type="image/png" id="fav-icon" href="">
 <title>LIFT</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -1566,6 +1566,70 @@ function renderBodyweight(){
 
 // ── INIT ──
 renderHome();
+
+// ── APP ICON (canvas-generated, works for iOS Add to Home Screen) ──
+(function(){
+  const S = 180;
+  const c = document.createElement('canvas');
+  c.width = S; c.height = S;
+  const ctx = c.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#F2F2F7';
+  ctx.beginPath();
+  const r = 38;
+  ctx.moveTo(r, 0);
+  ctx.lineTo(S-r, 0);
+  ctx.quadraticCurveTo(S, 0, S, r);
+  ctx.lineTo(S, S-r);
+  ctx.quadraticCurveTo(S, S, S-r, S);
+  ctx.lineTo(r, S);
+  ctx.quadraticCurveTo(0, S, 0, S-r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fill();
+
+  // Dumbbell — all pieces in #3478F6
+  ctx.fillStyle = '#3478F6';
+  const cx = S/2, cy = S/2;
+
+  function rRect(x, y, w, h, rad) {
+    ctx.beginPath();
+    ctx.moveTo(x + rad, y);
+    ctx.lineTo(x + w - rad, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+rad);
+    ctx.lineTo(x+w, y+h-rad);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-rad, y+h);
+    ctx.lineTo(x+rad, y+h);
+    ctx.quadraticCurveTo(x, y+h, x, y+h-rad);
+    ctx.lineTo(x, y+rad);
+    ctx.quadraticCurveTo(x, y, x+rad, y);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Center bar
+  rRect(cx-40, cy-4.5, 80, 9, 4);
+  // Left collar
+  rRect(cx-47, cy-9, 7, 18, 3);
+  // Right collar
+  rRect(cx+40, cy-9, 7, 18, 3);
+  // Left outer plate
+  rRect(cx-64, cy-22, 17, 44, 5);
+  // Right outer plate
+  rRect(cx+47, cy-22, 17, 44, 5);
+  // Left inner plate
+  rRect(cx-77, cy-16, 13, 32, 4);
+  // Right inner plate
+  rRect(cx+64, cy-16, 13, 32, 4);
+
+  const url = c.toDataURL('image/png');
+  const link = document.getElementById('app-icon');
+  const fav  = document.getElementById('fav-icon');
+  if(link) link.href = url;
+  if(fav)  fav.href  = url;
+})();
 </script>
 </body>
 </html>
