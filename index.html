@@ -1635,7 +1635,7 @@ renderDashboard();
 
   // ── Squircle clip ──
   function squircle(s){
-    const r=s*0.22;ctx.beginPath();
+    const r=s*0.215;ctx.beginPath();
     ctx.moveTo(r,0);ctx.lineTo(s-r,0);ctx.quadraticCurveTo(s,0,s,r);
     ctx.lineTo(s,s-r);ctx.quadraticCurveTo(s,s,s-r,s);
     ctx.lineTo(r,s);ctx.quadraticCurveTo(0,s,0,s-r);
@@ -1643,28 +1643,50 @@ renderDashboard();
   }
   squircle(S);ctx.clip();
 
-  // ── White background ──
-  ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,S,S);
+  // ── Background ──
+  ctx.fillStyle='#f5f5f7';ctx.fillRect(0,0,S,S);
 
-  // ── Circular ring ──
-  const ringR=210,ringW=18;
-  // Full light ring
-  ctx.beginPath();ctx.arc(cx,cy,ringR,0,Math.PI*2);
-  ctx.strokeStyle='rgba(100,120,220,0.18)';ctx.lineWidth=ringW;ctx.stroke();
-  // Blue arc ~300 degrees (top, going clockwise, leaving gap bottom-left)
-  ctx.beginPath();
-  ctx.arc(cx,cy,ringR,-Math.PI/2+Math.PI*0.08,Math.PI*1.58);
-  const ringGrad=ctx.createLinearGradient(cx-ringR,cy,cx+ringR,cy);
-  ringGrad.addColorStop(0,'#7ba8f5');
-  ringGrad.addColorStop(0.5,'#3478F6');
-  ringGrad.addColorStop(1,'#3478F6');
-  ctx.strokeStyle=ringGrad;ctx.lineWidth=ringW;
-  ctx.lineCap='round';ctx.stroke();
+  // ── Ring ──
+  const RR=192,RW=24;
+
+  // Full lavender base ring
+  ctx.beginPath();ctx.arc(cx,cy,RR,0,Math.PI*2);
+  ctx.strokeStyle='#c5c8e8';ctx.lineWidth=RW;ctx.stroke();
+
+  // Gradient arc: solid blue at top fading to lavender, clockwise ~295deg
+  // Start: top (−90deg), end: bottom-left (~205deg)
+  const arcStart=-Math.PI/2;
+  const arcEnd=arcStart+(Math.PI*2*0.82); // ~295 degrees
+  // Use conical-style gradient by drawing many small arc segments
+  const steps=120;
+  for(let i=0;i<steps;i++){
+    const t=i/steps;
+    const a1=arcStart+t*(arcEnd-arcStart);
+    const a2=arcStart+(t+1/steps)*(arcEnd-arcStart);
+    // Color: starts solid blue, fades to lavender at end
+    const r1=Math.round(37+(197-37)*Math.pow(t,1.8));
+    const g1=Math.round(99+(200-99)*Math.pow(t,1.8));
+    const b1=Math.round(235+(232-235)*Math.pow(t,1.8));
+    ctx.beginPath();
+    ctx.arc(cx,cy,RR,a1,a2);
+    ctx.strokeStyle=`rgb(${r1},${g1},${b1})`;
+    ctx.lineWidth=RW;
+    ctx.lineCap=i===0?'round':'butt';
+    ctx.stroke();
+  }
+  // Round cap at end
+  const endA=arcEnd;
+  const ex=cx+RR*Math.cos(endA),ey=cy+RR*Math.sin(endA);
+  ctx.beginPath();ctx.arc(ex,ey,RW/2,0,Math.PI*2);
+  ctx.fillStyle='#c5c8e8';ctx.fill();
+  // Round cap at start
+  const sx=cx+RR*Math.cos(arcStart),sy=cy+RR*Math.sin(arcStart);
+  ctx.beginPath();ctx.arc(sx,sy,RW/2,0,Math.PI*2);
+  ctx.fillStyle='#2563eb';ctx.fill();
 
   // ── Dumbbell ──
-  const blue='#3478F6';
-  ctx.fillStyle=blue;
-  ctx.shadowColor='rgba(52,120,246,0.25)';ctx.shadowBlur=12;ctx.shadowOffsetY=4;
+  const BLUE='#1d4ed8';
+  ctx.fillStyle=BLUE;
 
   function rr(x,y,w,h,r){
     ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
@@ -1674,56 +1696,62 @@ renderDashboard();
     ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();
   }
 
-  const by=cy+28; // dumbbell center y (shifted down slightly for flame)
+  const by=cy+30; // dumbbell vertical center
+
   // Center bar
-  rr(cx-68,by-9,136,18,9);
+  rr(cx-82,by-11,164,22,6);
   // Left collar
-  rr(cx-84,by-16,16,32,5);
+  rr(cx-104,by-28,24,56,7);
   // Right collar
-  rr(cx+68,by-16,16,32,5);
-  // Left outer plate
-  rr(cx-118,by-34,34,68,10);
-  // Right outer plate
-  rr(cx+84,by-34,34,68,10);
-  // Left inner plate (small dots)
-  ctx.beginPath();ctx.arc(cx-126,by,6,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(cx+126,by,6,0,Math.PI*2);ctx.fill();
+  rr(cx+80,by-28,24,56,7);
+  // Left plate
+  rr(cx-150,by-48,46,96,12);
+  // Right plate
+  rr(cx+104,by-48,46,96,12);
+  // Left knurl dot
+  ctx.beginPath();ctx.arc(cx-168,by,10,0,Math.PI*2);ctx.fill();
+  // Right knurl dot
+  ctx.beginPath();ctx.arc(cx+168,by,10,0,Math.PI*2);ctx.fill();
 
   // ── Flame ──
-  ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+  const fx=cx, ftop=by-120, fbot=by-18;
+  const fh=fbot-ftop, fw=52;
 
-  const fx=cx,fy=by-62,fs=52; // flame center x, top y, scale
-
-  // Outer flame (orange)
-  ctx.fillStyle='#FF6B35';
+  // Outer orange body
+  ctx.fillStyle='#e8582a';
   ctx.beginPath();
-  ctx.moveTo(fx,fy-fs*0.5);
-  ctx.bezierCurveTo(fx+fs*0.35,fy-fs*0.1, fx+fs*0.5,fy+fs*0.3, fx+fs*0.25,fy+fs*0.55);
-  ctx.bezierCurveTo(fx+fs*0.45,fy+fs*0.3, fx+fs*0.3,fy+fs*0.1, fx+fs*0.15,fy+fs*0.25);
-  ctx.bezierCurveTo(fx+fs*0.2,fy+fs*0.0, fx+fs*0.1,fy-fs*0.2, fx,fy-fs*0.5);
+  ctx.moveTo(fx,ftop);
+  ctx.bezierCurveTo(fx+fw,ftop+fh*0.25, fx+fw*1.1,ftop+fh*0.6, fx+fw*0.7,fbot);
+  ctx.bezierCurveTo(fx+fw*0.4,ftop+fh*0.75, fx+fw*0.55,ftop+fh*0.5, fx+fw*0.25,ftop+fh*0.35);
+  ctx.bezierCurveTo(fx+fw*0.15,ftop+fh*0.2, fx+fw*0.05,ftop+fh*0.1, fx,ftop);
   ctx.closePath();ctx.fill();
 
   ctx.beginPath();
-  ctx.moveTo(fx,fy-fs*0.5);
-  ctx.bezierCurveTo(fx-fs*0.35,fy-fs*0.1, fx-fs*0.5,fy+fs*0.3, fx-fs*0.25,fy+fs*0.55);
-  ctx.bezierCurveTo(fx-fs*0.45,fy+fs*0.3, fx-fs*0.3,fy+fs*0.1, fx-fs*0.15,fy+fs*0.25);
-  ctx.bezierCurveTo(fx-fs*0.2,fy+fs*0.0, fx-fs*0.1,fy-fs*0.2, fx,fy-fs*0.5);
+  ctx.moveTo(fx,ftop);
+  ctx.bezierCurveTo(fx-fw,ftop+fh*0.25, fx-fw*1.1,ftop+fh*0.6, fx-fw*0.7,fbot);
+  ctx.bezierCurveTo(fx-fw*0.4,ftop+fh*0.75, fx-fw*0.55,ftop+fh*0.5, fx-fw*0.25,ftop+fh*0.35);
+  ctx.bezierCurveTo(fx-fw*0.15,ftop+fh*0.2, fx-fw*0.05,ftop+fh*0.1, fx,ftop);
   ctx.closePath();ctx.fill();
 
-  // Inner flame (red-orange core)
-  ctx.fillStyle='#E8421A';
+  // Connect base of flame
   ctx.beginPath();
-  ctx.moveTo(fx,fy);
-  ctx.bezierCurveTo(fx+fs*0.22,fy+fs*0.15, fx+fs*0.28,fy+fs*0.42, fx,fy+fs*0.55);
-  ctx.bezierCurveTo(fx-fs*0.28,fy+fs*0.42, fx-fs*0.22,fy+fs*0.15, fx,fy);
+  ctx.ellipse(fx,fbot,fw*0.7,fh*0.18,0,0,Math.PI*2);
+  ctx.fillStyle='#e8582a';ctx.fill();
+
+  // Inner red-orange core
+  ctx.fillStyle='#c0391a';
+  ctx.beginPath();
+  ctx.moveTo(fx,ftop+fh*0.2);
+  ctx.bezierCurveTo(fx+fw*0.45,ftop+fh*0.45, fx+fw*0.4,ftop+fh*0.78, fx,fbot);
+  ctx.bezierCurveTo(fx-fw*0.4,ftop+fh*0.78, fx-fw*0.45,ftop+fh*0.45, fx,ftop+fh*0.2);
   ctx.closePath();ctx.fill();
 
-  // Bright tip
-  ctx.fillStyle='#FFB347';
+  // Bright highlight
+  ctx.fillStyle='#f09050';
   ctx.beginPath();
-  ctx.moveTo(fx,fy-fs*0.42);
-  ctx.bezierCurveTo(fx+fs*0.1,fy-fs*0.15, fx+fs*0.1,fy+fs*0.05, fx,fy+fs*0.12);
-  ctx.bezierCurveTo(fx-fs*0.1,fy+fs*0.05, fx-fs*0.1,fy-fs*0.15, fx,fy-fs*0.42);
+  ctx.moveTo(fx,ftop+fh*0.32);
+  ctx.bezierCurveTo(fx+fw*0.22,ftop+fh*0.52, fx+fw*0.18,ftop+fh*0.75, fx,fbot-fh*0.05);
+  ctx.bezierCurveTo(fx-fw*0.18,ftop+fh*0.75, fx-fw*0.22,ftop+fh*0.52, fx,ftop+fh*0.32);
   ctx.closePath();ctx.fill();
 
   // Output
