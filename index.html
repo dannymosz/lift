@@ -1632,19 +1632,101 @@ renderDashboard();
 (function(){
   const S=512,c=document.createElement('canvas');c.width=S;c.height=S;
   const ctx=c.getContext('2d'),cx=S/2,cy=S/2;
-  function sq(ctx,s){const r=s*.22;ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(s-r,0);ctx.quadraticCurveTo(s,0,s,r);ctx.lineTo(s,s-r);ctx.quadraticCurveTo(s,s,s-r,s);ctx.lineTo(r,s);ctx.quadraticCurveTo(0,s,0,s-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath()}
-  sq(ctx,S);ctx.clip();
-  const bg=ctx.createLinearGradient(0,0,S,S);bg.addColorStop(0,'#1a2a4a');bg.addColorStop(.5,'#1c3a6e');bg.addColorStop(1,'#0f1f3d');ctx.fillStyle=bg;ctx.fillRect(0,0,S,S);
-  const glow=ctx.createRadialGradient(cx,cy-30,10,cx,cy-30,260);glow.addColorStop(0,'rgba(52,120,246,0.35)');glow.addColorStop(.5,'rgba(52,120,246,0.10)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.fillRect(0,0,S,S);
-  function rRect(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill()}
-  ctx.shadowColor='rgba(0,0,0,0.55)';ctx.shadowBlur=18;ctx.shadowOffsetY=8;
-  const dg=ctx.createLinearGradient(0,cy-80,0,cy+80);dg.addColorStop(0,'#ffffff');dg.addColorStop(.45,'#e8f0ff');dg.addColorStop(1,'#c5d8ff');ctx.fillStyle=dg;
-  const sc=S/180,bx=cx,by=cy;
-  rRect(bx-40*sc,by-4.5*sc,80*sc,9*sc,4*sc);rRect(bx-47*sc,by-10*sc,7*sc,20*sc,3*sc);rRect(bx+40*sc,by-10*sc,7*sc,20*sc,3*sc);rRect(bx-66*sc,by-24*sc,19*sc,48*sc,6*sc);rRect(bx+47*sc,by-24*sc,19*sc,48*sc,6*sc);rRect(bx-80*sc,by-17*sc,14*sc,34*sc,4*sc);rRect(bx+66*sc,by-17*sc,14*sc,34*sc,4*sc);
+
+  // ── Squircle clip ──
+  function squircle(s){
+    const r=s*0.22;ctx.beginPath();
+    ctx.moveTo(r,0);ctx.lineTo(s-r,0);ctx.quadraticCurveTo(s,0,s,r);
+    ctx.lineTo(s,s-r);ctx.quadraticCurveTo(s,s,s-r,s);
+    ctx.lineTo(r,s);ctx.quadraticCurveTo(0,s,0,s-r);
+    ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();
+  }
+  squircle(S);ctx.clip();
+
+  // ── White background ──
+  ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,S,S);
+
+  // ── Circular ring ──
+  const ringR=210,ringW=18;
+  // Full light ring
+  ctx.beginPath();ctx.arc(cx,cy,ringR,0,Math.PI*2);
+  ctx.strokeStyle='rgba(100,120,220,0.18)';ctx.lineWidth=ringW;ctx.stroke();
+  // Blue arc ~300 degrees (top, going clockwise, leaving gap bottom-left)
+  ctx.beginPath();
+  ctx.arc(cx,cy,ringR,-Math.PI/2+Math.PI*0.08,Math.PI*1.58);
+  const ringGrad=ctx.createLinearGradient(cx-ringR,cy,cx+ringR,cy);
+  ringGrad.addColorStop(0,'#7ba8f5');
+  ringGrad.addColorStop(0.5,'#3478F6');
+  ringGrad.addColorStop(1,'#3478F6');
+  ctx.strokeStyle=ringGrad;ctx.lineWidth=ringW;
+  ctx.lineCap='round';ctx.stroke();
+
+  // ── Dumbbell ──
+  const blue='#3478F6';
+  ctx.fillStyle=blue;
+  ctx.shadowColor='rgba(52,120,246,0.25)';ctx.shadowBlur=12;ctx.shadowOffsetY=4;
+
+  function rr(x,y,w,h,r){
+    ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
+    ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();ctx.fill();
+  }
+
+  const by=cy+28; // dumbbell center y (shifted down slightly for flame)
+  // Center bar
+  rr(cx-68,by-9,136,18,9);
+  // Left collar
+  rr(cx-84,by-16,16,32,5);
+  // Right collar
+  rr(cx+68,by-16,16,32,5);
+  // Left outer plate
+  rr(cx-118,by-34,34,68,10);
+  // Right outer plate
+  rr(cx+84,by-34,34,68,10);
+  // Left inner plate (small dots)
+  ctx.beginPath();ctx.arc(cx-126,by,6,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(cx+126,by,6,0,Math.PI*2);ctx.fill();
+
+  // ── Flame ──
   ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
-  const hl=ctx.createLinearGradient(0,by-5*sc,0,by-2*sc);hl.addColorStop(0,'rgba(255,255,255,0.9)');hl.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=hl;rRect(bx-40*sc,by-4.5*sc,80*sc,4*sc,4*sc);
-  ctx.shadowColor='rgba(0,0,0,0.4)';ctx.shadowBlur=6;ctx.shadowOffsetY=2;ctx.fillStyle='rgba(255,255,255,0.92)';ctx.font=`900 ${Math.round(38*sc/2.844)}px -apple-system,"Inter",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('LIFT',cx,cy+52*sc/2.844);
-  ctx.shadowColor='transparent';const vig=ctx.createRadialGradient(cx,cy,S*.3,cx,cy,S*.72);vig.addColorStop(0,'rgba(0,0,0,0)');vig.addColorStop(1,'rgba(0,0,0,0.28)');ctx.fillStyle=vig;ctx.fillRect(0,0,S,S);
+
+  const fx=cx,fy=by-62,fs=52; // flame center x, top y, scale
+
+  // Outer flame (orange)
+  ctx.fillStyle='#FF6B35';
+  ctx.beginPath();
+  ctx.moveTo(fx,fy-fs*0.5);
+  ctx.bezierCurveTo(fx+fs*0.35,fy-fs*0.1, fx+fs*0.5,fy+fs*0.3, fx+fs*0.25,fy+fs*0.55);
+  ctx.bezierCurveTo(fx+fs*0.45,fy+fs*0.3, fx+fs*0.3,fy+fs*0.1, fx+fs*0.15,fy+fs*0.25);
+  ctx.bezierCurveTo(fx+fs*0.2,fy+fs*0.0, fx+fs*0.1,fy-fs*0.2, fx,fy-fs*0.5);
+  ctx.closePath();ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(fx,fy-fs*0.5);
+  ctx.bezierCurveTo(fx-fs*0.35,fy-fs*0.1, fx-fs*0.5,fy+fs*0.3, fx-fs*0.25,fy+fs*0.55);
+  ctx.bezierCurveTo(fx-fs*0.45,fy+fs*0.3, fx-fs*0.3,fy+fs*0.1, fx-fs*0.15,fy+fs*0.25);
+  ctx.bezierCurveTo(fx-fs*0.2,fy+fs*0.0, fx-fs*0.1,fy-fs*0.2, fx,fy-fs*0.5);
+  ctx.closePath();ctx.fill();
+
+  // Inner flame (red-orange core)
+  ctx.fillStyle='#E8421A';
+  ctx.beginPath();
+  ctx.moveTo(fx,fy);
+  ctx.bezierCurveTo(fx+fs*0.22,fy+fs*0.15, fx+fs*0.28,fy+fs*0.42, fx,fy+fs*0.55);
+  ctx.bezierCurveTo(fx-fs*0.28,fy+fs*0.42, fx-fs*0.22,fy+fs*0.15, fx,fy);
+  ctx.closePath();ctx.fill();
+
+  // Bright tip
+  ctx.fillStyle='#FFB347';
+  ctx.beginPath();
+  ctx.moveTo(fx,fy-fs*0.42);
+  ctx.bezierCurveTo(fx+fs*0.1,fy-fs*0.15, fx+fs*0.1,fy+fs*0.05, fx,fy+fs*0.12);
+  ctx.bezierCurveTo(fx-fs*0.1,fy+fs*0.05, fx-fs*0.1,fy-fs*0.15, fx,fy-fs*0.42);
+  ctx.closePath();ctx.fill();
+
+  // Output
   const url=c.toDataURL('image/png');
   const lnk=document.getElementById('app-icon'),fav=document.getElementById('fav-icon');
   if(lnk)lnk.href=url;if(fav)fav.href=url;
