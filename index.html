@@ -506,6 +506,7 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
 .toggle.on{background:var(--green)}
 .toggle-thumb{position:absolute;top:3px;left:3px;width:22px;height:22px;background:#fff;border-radius:50%;transition:transform .2s cubic-bezier(.4,0,.2,1);box-shadow:0 1px 4px rgba(0,0,0,0.2)}
 .toggle.on .toggle-thumb{transform:translateX(20px)}
+@keyframes loadBar{0%{width:0%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:0%;margin-left:100%}}
 </style>
 </head>
 <body>
@@ -526,6 +527,8 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
     <symbol id="nav-trophy" viewBox="0 0 24 24" fill="none" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4"/><path d="M5 6H3a1 1 0 00-1 1v2a4 4 0 004 4"/><path d="M19 6h2a1 1 0 011 1v2a4 4 0 01-4 4"/><path d="M7 3h10v8a5 5 0 01-10 0V3z"/></symbol>
     <symbol id="nav-weight" viewBox="0 0 24 24" fill="none" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l3-3 6 3 6-3 3 3v14l-3-2-6 2-6-2-3 2z"/></symbol>
     <symbol id="nav-settings" viewBox="0 0 24 24" fill="none" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></symbol>
+    <symbol id="nav-wellness" viewBox="0 0 24 24" fill="none" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21C12 21 3 14 3 8a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 13-9 13z"/></symbol>
+    <symbol id="nav-caltrack" viewBox="0 0 24 24" fill="none" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
   </defs>
 </svg>
 
@@ -617,6 +620,20 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
 
   <div class="sec-label">Daily Goals</div>
   <div class="ch-list" id="ch-list"></div>
+
+  <!-- Sleep + Calories summary row -->
+  <div class="stats-row" style="margin-top:14px">
+    <div class="stat-tile" style="cursor:pointer" onclick="showScreen('wellness')">
+      <div class="stat-tile-lbl">Sleep</div>
+      <div class="stat-tile-val" id="dash-sleep-val">—</div>
+      <div class="stat-tile-sub" id="dash-sleep-sub">tap to log</div>
+    </div>
+    <div class="stat-tile" style="cursor:pointer" onclick="showScreen('caltrack')">
+      <div class="stat-tile-lbl">Calories</div>
+      <div class="stat-tile-val" id="dash-cal-val">—</div>
+      <div class="stat-tile-sub" id="dash-cal-sub">tap to log</div>
+    </div>
+  </div>
 
   <div style="height:20px"></div>
 </div>
@@ -793,7 +810,161 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
   </div>
 </div>
 
-<!-- REST TIMER -->
+<!-- ══════════════════════════════════════════════════ -->
+<!-- WELLNESS (Sleep) -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="s-wellness" class="screen">
+  <div style="padding:56px 20px 16px">
+    <div class="pg-eyebrow">Recovery</div>
+    <div class="pg-title">Sleep</div>
+  </div>
+
+  <!-- Dial card -->
+  <div style="margin:0 20px;background:var(--surf);border-radius:var(--r);padding:22px 18px 18px;box-shadow:var(--shadow)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div style="font-size:15px;font-weight:700;color:var(--text)">Last night</div>
+      <div style="font-size:12px;color:var(--blue);font-weight:600;cursor:pointer" onclick="saveSleepLog()">Log →</div>
+    </div>
+
+    <!-- Dial -->
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div id="sleep-dial-wrap" style="position:relative;width:220px;height:220px;cursor:pointer;touch-action:none;user-select:none">
+        <svg id="sleep-dial-svg" viewBox="0 0 220 220" style="position:absolute;inset:0;width:100%;height:100%">
+          <circle cx="110" cy="110" r="90" fill="none" stroke="var(--surf3)" stroke-width="18"/>
+          <circle id="sleep-arc" cx="110" cy="110" r="90" fill="none" stroke="var(--blue)" stroke-width="18"
+            stroke-linecap="round" stroke-dasharray="565.5" stroke-dashoffset="565.5"
+            transform="rotate(-90 110 110)"/>
+          <circle id="sleep-handle" cx="110" cy="20" r="11" fill="var(--blue)" stroke="var(--surf)" stroke-width="2.5"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;pointer-events:none">
+          <div id="sleep-h" style="font-size:46px;font-weight:800;color:var(--text);letter-spacing:-2px;line-height:1">0</div>
+          <div id="sleep-m" style="font-size:16px;font-weight:600;color:var(--muted);letter-spacing:-0.5px">00 min</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.06em">hours slept</div>
+        </div>
+      </div>
+
+      <!-- +/- nudge buttons -->
+      <div style="display:flex;align-items:center;gap:20px">
+        <button onclick="nudgeSleep(-1)" style="width:40px;height:40px;border-radius:50%;background:var(--surf2);border:1.5px solid var(--surf3);font-size:20px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:500">−</button>
+        <div style="font-size:12px;color:var(--muted);font-weight:500">± 1 min</div>
+        <button onclick="nudgeSleep(1)" style="width:40px;height:40px;border-radius:50%;background:var(--surf2);border:1.5px solid var(--surf3);font-size:20px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:500">+</button>
+      </div>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;margin-top:4px">
+        <div style="background:var(--surf2);border-radius:12px;padding:12px 8px;text-align:center">
+          <div style="font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.3px">8h</div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Target</div>
+        </div>
+        <div style="background:var(--surf2);border-radius:12px;padding:12px 8px;text-align:center">
+          <div style="font-size:17px;font-weight:800;letter-spacing:-0.3px" id="sleep-debt-val">—</div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Debt</div>
+        </div>
+        <div style="background:var(--surf2);border-radius:12px;padding:12px 8px;text-align:center">
+          <div style="font-size:17px;font-weight:800;letter-spacing:-0.3px" id="sleep-score-val">—</div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Score</div>
+        </div>
+      </div>
+
+      <button onclick="saveSleepLog()" style="width:100%;background:var(--text);color:var(--surf);border:none;border-radius:var(--r);padding:15px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px;transition:opacity .15s">Log Sleep</button>
+    </div>
+  </div>
+
+  <!-- 7-day sleep chart -->
+  <div class="sec-label">Last 7 nights</div>
+  <div style="margin:0 20px;background:var(--surf);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)">
+    <div style="position:relative;height:140px"><canvas id="sleep-chart"></canvas></div>
+  </div>
+
+  <!-- History -->
+  <div class="sec-label">History</div>
+  <div id="sleep-hist" style="padding:0 20px;display:flex;flex-direction:column;gap:7px;margin-bottom:24px"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- CALTRACK -->
+<!-- ══════════════════════════════════════════════════ -->
+<div id="s-caltrack" class="screen">
+  <div style="padding:56px 20px 16px">
+    <div class="pg-eyebrow">Nutrition</div>
+    <div class="pg-title">CalTrack</div>
+  </div>
+
+  <!-- Daily summary -->
+  <div style="margin:0 20px;background:var(--surf);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)">
+    <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">Today</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.4px" id="ct-cals">0</div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">kcal</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--blue);letter-spacing:-0.4px" id="ct-protein">0g</div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Protein</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--orange);letter-spacing:-0.4px" id="ct-carbs">0g</div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Carbs</div>
+      </div>
+      <div style="text-align:center">
+        <div style="font-size:22px;font-weight:800;color:var(--gold);letter-spacing:-0.4px" id="ct-fat">0g</div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Fat</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo scan -->
+  <div class="sec-label">Scan a meal</div>
+  <div style="margin:0 20px;background:var(--surf);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)">
+    <input type="file" id="meal-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleMealPhoto(event)">
+    <div id="meal-preview-wrap" style="display:none;margin-bottom:14px">
+      <img id="meal-preview" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover">
+    </div>
+    <button onclick="document.getElementById('meal-photo-input').click()" style="width:100%;background:var(--surf2);border:1.5px dashed var(--muted2);border-radius:var(--r);padding:22px;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px" id="scan-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Take a photo of your meal
+    </button>
+
+    <!-- AI result -->
+    <div id="meal-result" style="display:none;margin-top:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">AI Estimate</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--surf2);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:var(--text)" id="r-cals">—</div>
+          <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">kcal</div>
+        </div>
+        <div style="background:var(--surf2);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:var(--blue)" id="r-protein">—</div>
+          <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Protein</div>
+        </div>
+        <div style="background:var(--surf2);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:var(--orange)" id="r-carbs">—</div>
+          <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Carbs</div>
+        </div>
+        <div style="background:var(--surf2);border-radius:10px;padding:10px 6px;text-align:center">
+          <div style="font-size:18px;font-weight:800;color:var(--gold)" id="r-fat">—</div>
+          <div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Fat</div>
+        </div>
+      </div>
+      <div id="r-desc" style="font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:12px"></div>
+      <button onclick="addMealToLog()" style="width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);padding:14px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Add to today's log</button>
+    </div>
+
+    <!-- Loading state -->
+    <div id="meal-loading" style="display:none;text-align:center;padding:20px 0">
+      <div style="font-size:14px;color:var(--muted);font-weight:500">Analyzing your meal...</div>
+      <div style="margin-top:8px;height:3px;background:var(--surf3);border-radius:999px;overflow:hidden">
+        <div style="height:100%;background:var(--blue);border-radius:999px;animation:loadBar 1.5s ease-in-out infinite"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Today's food log -->
+  <div class="sec-label">Today's log</div>
+  <div id="food-log-list" style="padding:0 20px;display:flex;flex-direction:column;gap:7px;margin-bottom:24px">
+    <div class="empty" style="padding:24px">No meals logged yet — scan a photo above</div>
+  </div>
+</div>
 <div class="rtimer" id="rtimer">
   <div class="rt-info"><div class="rt-lbl">Rest</div><div class="rt-time" id="rt-time">1:45</div></div>
   <div class="rt-bar-bg"><div class="rt-bar-fill" id="rt-fill" style="width:100%"></div></div>
@@ -853,6 +1024,12 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
   </button>
   <button class="nb" id="nb-weight" onclick="showScreen('weight')">
     <svg viewBox="0 0 24 24"><use href="#nav-weight"/></svg><span>Weight</span>
+  </button>
+  <button class="nb" id="nb-wellness" onclick="showScreen('wellness')">
+    <svg viewBox="0 0 24 24"><use href="#nav-wellness"/></svg><span>Sleep</span>
+  </button>
+  <button class="nb" id="nb-caltrack" onclick="showScreen('caltrack')">
+    <svg viewBox="0 0 24 24"><use href="#nav-caltrack"/></svg><span>Nutrition</span>
   </button>
   <button class="nb" id="nb-settings" onclick="showScreen('settings')">
     <svg viewBox="0 0 24 24"><use href="#nav-settings"/></svg><span>Settings</span>
@@ -1065,6 +1242,8 @@ function renderDashboard(){
   renderDashBWChart();
   // Challenges
   renderChallenges();
+  // Sleep + calories
+  renderDashSleepCal();
 }
 
 function heroStart(){const id=getTodayPlanId();if(id&&PLAN.find(p=>p.id===id)?.exercises.length)startWorkout(id)}
@@ -1558,6 +1737,8 @@ function showScreen(name){
   if(name==='trophies')renderTrophies();
   if(name==='weight')renderBWPage();
   if(name==='settings')renderSettings();
+  if(name==='wellness')renderWellness();
+  if(name==='caltrack')renderCalTrack();
 }
 
 // ═══════════════════════════════════════════
@@ -1619,6 +1800,251 @@ function renderChallenges(){
         :`<div class="ch-reward">${ch.reward}</div>`}`;
     list.appendChild(item);
   });
+}
+
+// ═══════════════════════════════════════════
+// SLEEP
+// ═══════════════════════════════════════════
+const SLEEP_TARGET=8*60; // 8 hours in minutes
+const SLEEP_MAX=12*60;
+const SLEEP_CIRC=2*Math.PI*90;
+let sleepMins=0,sleepChart=null,sleepDragging=false;
+
+function getSleepHistory(){try{return JSON.parse(localStorage.getItem('liftSleep')||'[]')}catch{return[]}}
+function saveSleepHistory(h){try{localStorage.setItem('liftSleep',JSON.stringify(h))}catch{}}
+function getTodaySleepKey(){return new Date().toISOString().slice(0,10)}
+
+function updateSleepDial(mins){
+  sleepMins=Math.max(0,Math.min(SLEEP_MAX,mins));
+  const frac=sleepMins/SLEEP_MAX;
+  const angleDeg=frac*360;
+  const angleRad=(angleDeg-90)*Math.PI/180;
+  const r=90,cx=110,cy=110;
+  const hx=cx+r*Math.cos(angleRad),hy=cy+r*Math.sin(angleRad);
+  const arc=document.getElementById('sleep-arc');
+  const handle=document.getElementById('sleep-handle');
+  if(!arc||!handle)return;
+  arc.setAttribute('stroke-dashoffset',(SLEEP_CIRC-(frac*SLEEP_CIRC)).toFixed(2));
+  handle.setAttribute('cx',hx.toFixed(2));handle.setAttribute('cy',hy.toFixed(2));
+  const isGood=sleepMins>=SLEEP_TARGET;
+  const col=isGood?'var(--green)':'var(--blue)';
+  arc.setAttribute('stroke',col);handle.setAttribute('fill',col);
+  const h=Math.floor(sleepMins/60),m=sleepMins%60;
+  const hEl=document.getElementById('sleep-h'),mEl=document.getElementById('sleep-m');
+  if(hEl)hEl.textContent=h;
+  if(mEl)mEl.textContent=m.toString().padStart(2,'0')+' min';
+  const debtMins=Math.max(0,SLEEP_TARGET-sleepMins);
+  const dv=document.getElementById('sleep-debt-val');
+  if(dv){
+    if(debtMins===0){dv.textContent='0m';dv.style.color='var(--green)'}
+    else{const dh=Math.floor(debtMins/60),dm=debtMins%60;dv.textContent=dh>0?(dh+'h'+(dm>0?' '+dm+'m':'')):(dm+'m');dv.style.color='var(--red)'}
+  }
+  const pct=Math.round(Math.min(100,(sleepMins/SLEEP_TARGET)*100));
+  const sv=document.getElementById('sleep-score-val');
+  if(sv){sv.textContent=pct+'%';sv.style.color=pct>=100?'var(--green)':pct>=75?'var(--blue)':'var(--red)'}
+}
+
+function nudgeSleep(delta){updateSleepDial(sleepMins+delta)}
+
+function initSleepDial(){
+  const wrap=document.getElementById('sleep-dial-wrap');if(!wrap)return;
+  function getAngle(e,rect){
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy2=e.touches?e.touches[0].clientY:e.clientY;
+    const ox=rect.left+rect.width/2,oy=rect.top+rect.height/2;
+    let a=Math.atan2(cy2-oy,cx-ox)*180/Math.PI+90;
+    if(a<0)a+=360;return a;
+  }
+  function onMove(e){
+    if(!sleepDragging)return;e.preventDefault();
+    const rect=wrap.getBoundingClientRect();
+    const angle=getAngle(e,rect);
+    updateSleepDial(Math.round((angle/360)*SLEEP_MAX));
+  }
+  wrap.addEventListener('mousedown',e=>{sleepDragging=true;onMove(e)});
+  wrap.addEventListener('touchstart',e=>{sleepDragging=true;onMove(e)},{passive:false});
+  window.addEventListener('mousemove',onMove);
+  window.addEventListener('touchmove',onMove,{passive:false});
+  window.addEventListener('mouseup',()=>sleepDragging=false);
+  window.addEventListener('touchend',()=>sleepDragging=false);
+  // Load today's value
+  const today=getTodaySleepKey();
+  const hist=getSleepHistory();
+  const todayEntry=hist.find(e=>e.date===today);
+  if(todayEntry)updateSleepDial(todayEntry.mins);
+  else updateSleepDial(0);
+}
+
+function saveSleepLog(){
+  if(sleepMins===0)return;
+  const today=getTodaySleepKey();
+  const hist=getSleepHistory().filter(e=>e.date!==today);
+  hist.push({date:today,mins:sleepMins});
+  hist.sort((a,b)=>a.date.localeCompare(b.date));
+  saveSleepHistory(hist);
+  renderSleepHistory();
+  renderSleepChart();
+  renderDashSleepCal();
+  const btn=document.querySelector('#s-wellness button[onclick="saveSleepLog()"]');
+  if(btn){btn.textContent='Logged ✓';btn.style.background='var(--green)';setTimeout(()=>{btn.textContent='Log Sleep';btn.style.background='var(--text)'},2000)}
+}
+
+function renderSleepChart(){
+  const hist=getSleepHistory().slice(-7);
+  const canvas=document.getElementById('sleep-chart');if(!canvas)return;
+  if(sleepChart){sleepChart.destroy();sleepChart=null}
+  if(!hist.length)return;
+  const isDark=document.body.classList.contains('dark');
+  const lc=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)';
+  const tc=isDark?'#6e6e80':'#8E8E93';
+  sleepChart=new Chart(canvas.getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:hist.map(e=>{const d=new Date(e.date+'T12:00:00');return d.toLocaleDateString('en',{weekday:'short'})}),
+      datasets:[
+        {data:hist.map(e=>+(e.mins/60).toFixed(2)),backgroundColor:hist.map(e=>e.mins>=SLEEP_TARGET?'rgba(52,199,89,0.7)':'rgba(52,120,246,0.7)'),borderRadius:6},
+        {type:'line',data:Array(hist.length).fill(8),borderColor:'rgba(255,59,48,0.5)',borderWidth:1.5,borderDash:[4,3],pointRadius:0,fill:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const h=Math.floor(ctx.parsed.y),m=Math.round((ctx.parsed.y-h)*60);return h+'h '+(m>0?m+'m':'')}}}},scales:{x:{ticks:{color:tc,font:{size:10}},grid:{display:false}},y:{ticks:{color:tc,font:{size:10},callback:v=>v+'h',maxTicksLimit:4},grid:{color:lc},beginAtZero:true,max:12}}}
+  });
+}
+
+function renderSleepHistory(){
+  const hist=getSleepHistory();
+  const container=document.getElementById('sleep-hist');if(!container)return;
+  if(!hist.length){container.innerHTML='<div class="empty" style="padding:24px">No sleep logged yet</div>';return}
+  container.innerHTML='';
+  [...hist].reverse().forEach(e=>{
+    const d=new Date(e.date+'T12:00:00');
+    const label=d.toLocaleDateString('en',{weekday:'short',month:'short',day:'numeric'});
+    const h=Math.floor(e.mins/60),m=e.mins%60;
+    const isGood=e.mins>=SLEEP_TARGET;
+    const div=document.createElement('div');
+    div.style.cssText='background:var(--surf);border-radius:var(--rs);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow)';
+    div.innerHTML=`<div style="font-size:13px;color:var(--muted);font-weight:500">${label}</div><div style="font-size:18px;font-weight:800;color:${isGood?'var(--green)':'var(--blue)'};letter-spacing:-0.3px">${h}h ${m>0?m+'m':''}</div>`;
+    container.appendChild(div);
+  });
+}
+
+function renderWellness(){
+  initSleepDial();
+  renderSleepChart();
+  renderSleepHistory();
+}
+
+// ═══════════════════════════════════════════
+// CALTRACK
+// ═══════════════════════════════════════════
+function getFoodLog(){try{const k='liftFood_'+new Date().toISOString().slice(0,10);return JSON.parse(localStorage.getItem(k)||'[]')}catch{return[]}}
+function saveFoodLog(log){try{localStorage.setItem('liftFood_'+new Date().toISOString().slice(0,10),JSON.stringify(log))}catch{}}
+let pendingMeal=null;
+
+function handleMealPhoto(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    const b64=e.target.result.split(',')[1];
+    const preview=document.getElementById('meal-preview');
+    const previewWrap=document.getElementById('meal-preview-wrap');
+    if(preview){preview.src=e.target.result;previewWrap.style.display='block'}
+    document.getElementById('meal-result').style.display='none';
+    document.getElementById('meal-loading').style.display='block';
+    document.getElementById('scan-btn').style.display='none';
+    try{
+      const resp=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-6',
+          max_tokens:1000,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:file.type,data:b64}},
+            {type:'text',text:'Analyze this meal photo and estimate the nutritional content. Respond ONLY with a JSON object, no markdown, no explanation. Format: {"description":"brief meal description","calories":number,"protein_g":number,"carbs_g":number,"fat_g":number}'}
+          ]}]
+        })
+      });
+      const data=await resp.json();
+      const text=data.content[0].text.replace(/```json|```/g,'').trim();
+      const parsed=JSON.parse(text);
+      pendingMeal=parsed;
+      document.getElementById('r-cals').textContent=parsed.calories;
+      document.getElementById('r-protein').textContent=parsed.protein_g+'g';
+      document.getElementById('r-carbs').textContent=parsed.carbs_g+'g';
+      document.getElementById('r-fat').textContent=parsed.fat_g+'g';
+      document.getElementById('r-desc').textContent=parsed.description;
+      document.getElementById('meal-loading').style.display='none';
+      document.getElementById('meal-result').style.display='block';
+    }catch(err){
+      document.getElementById('meal-loading').style.display='none';
+      document.getElementById('scan-btn').style.display='flex';
+      document.getElementById('scan-btn').textContent='Error — try again';
+    }
+    event.target.value='';
+  };
+  reader.readAsDataURL(file);
+}
+
+function addMealToLog(){
+  if(!pendingMeal)return;
+  const log=getFoodLog();
+  log.push({...pendingMeal,time:new Date().toLocaleTimeString('en',{hour:'numeric',minute:'2-digit'})});
+  saveFoodLog(log);
+  pendingMeal=null;
+  document.getElementById('meal-result').style.display='none';
+  document.getElementById('meal-preview-wrap').style.display='none';
+  document.getElementById('scan-btn').style.display='flex';
+  document.getElementById('scan-btn').innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Take a photo of your meal';
+  renderCalTrack();
+  renderDashSleepCal();
+}
+
+function renderCalTrack(){
+  const log=getFoodLog();
+  const totals=log.reduce((a,m)=>({cals:a.cals+m.calories,p:a.p+m.protein_g,c:a.c+m.carbs_g,f:a.f+m.fat_g}),{cals:0,p:0,c:0,f:0});
+  const el=id=>document.getElementById(id);
+  if(el('ct-cals'))el('ct-cals').textContent=Math.round(totals.cals);
+  if(el('ct-protein'))el('ct-protein').textContent=Math.round(totals.p)+'g';
+  if(el('ct-carbs'))el('ct-carbs').textContent=Math.round(totals.c)+'g';
+  if(el('ct-fat'))el('ct-fat').textContent=Math.round(totals.f)+'g';
+  const list=document.getElementById('food-log-list');if(!list)return;
+  if(!log.length){list.innerHTML='<div class="empty" style="padding:24px">No meals logged yet — scan a photo above</div>';return}
+  list.innerHTML='';
+  log.forEach((m,i)=>{
+    const div=document.createElement('div');
+    div.style.cssText='background:var(--surf);border-radius:var(--rs);padding:13px 16px;box-shadow:var(--shadow)';
+    div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:14px;font-weight:600;color:var(--text)">${m.description}</div><div style="font-size:12px;color:var(--muted)">${m.time}</div></div><div style="display:flex;gap:10px"><span style="font-size:12px;font-weight:600;color:var(--text)">${m.calories} kcal</span><span style="font-size:12px;color:var(--blue)">P: ${m.protein_g}g</span><span style="font-size:12px;color:var(--orange)">C: ${m.carbs_g}g</span><span style="font-size:12px;color:var(--gold)">F: ${m.fat_g}g</span></div>`;
+    list.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD SLEEP + CAL SUMMARY
+// ═══════════════════════════════════════════
+function renderDashSleepCal(){
+  // Sleep
+  const today=getTodaySleepKey();
+  const sleepHist=getSleepHistory();
+  const todaySleep=sleepHist.find(e=>e.date===today);
+  const sv=document.getElementById('dash-sleep-val');
+  const ss=document.getElementById('dash-sleep-sub');
+  if(sv&&ss){
+    if(todaySleep){
+      const h=Math.floor(todaySleep.mins/60),m=todaySleep.mins%60;
+      sv.textContent=h+'h'+(m>0?' '+m+'m':'');
+      sv.style.color=todaySleep.mins>=SLEEP_TARGET?'var(--green)':'var(--blue)';
+      ss.textContent=todaySleep.mins>=SLEEP_TARGET?'great sleep 🌙':'under target';
+    } else {sv.textContent='—';sv.style.color='';ss.textContent='tap to log'}
+  }
+  // Calories
+  const log=getFoodLog();
+  const totalCals=log.reduce((a,m)=>a+m.calories,0);
+  const cv=document.getElementById('dash-cal-val');
+  const cs=document.getElementById('dash-cal-sub');
+  if(cv&&cs){
+    if(log.length){cv.textContent=Math.round(totalCals);cv.style.color='var(--orange)';cs.textContent=log.length+' meal'+(log.length>1?'s':'')+' logged'}
+    else{cv.textContent='—';cv.style.color='';cs.textContent='tap to log'}
+  }
 }
 
 // ═══════════════════════════════════════════
