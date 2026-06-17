@@ -917,7 +917,11 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
   <div class="sec-label">Scan a meal</div>
   <div style="margin:0 20px;background:var(--surf);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)">
     <input type="file" id="meal-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleMealPhoto(event)">
-    <div id="meal-preview-wrap" style="display:none;margin-bottom:14px">
+<div style="background:rgba(52,120,246,0.08);border-radius:10px;padding:9px 12px;margin-bottom:14px;font-size:12px;color:var(--blue);display:flex;align-items:flex-start;gap:7px">
+  <span style="flex-shrink:0">💡</span>
+  <span>For better accuracy: shoot from directly above, and include a fork, spoon, or coin in frame for scale.</span>
+</div>
+<div id="meal-preview-wrap" style="display:none;margin-bottom:14px">
       <img id="meal-preview" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover">
     </div>
     <button onclick="document.getElementById('meal-photo-input').click()" style="width:100%;background:var(--surf2);border:1.5px dashed var(--muted2);border-radius:var(--r);padding:22px;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px" id="scan-btn">
@@ -1961,7 +1965,7 @@ function handleMealPhoto(event){
         body:JSON.stringify({
           model:'meta-llama/llama-4-scout-17b-16e-instruct',
           messages:[{role:'user',content:[
-           {type:'text',text:'Analyze this meal photo carefully. First mentally identify: every visible food item, the approximate portion size of each relative to the plate/container, and the likely cooking method (fried, grilled, baked, raw, sauced, etc). Use standard USDA serving sizes as your baseline, then adjust up or down based on what you actually see. Be specific: a "large" portion of rice is roughly 1.5-2 cups cooked; a typical chicken breast is 6oz; a tablespoon of oil adds about 120 calories. Account for ALL visible components including sauces, oils, and garnishes. After this analysis, respond ONLY with a JSON object, no markdown, no explanation, no reasoning text. Format: {"description":"detailed list of all visible food items with estimated portions","calories":number,"protein_g":number,"carbs_g":number,"fat_g":number}'},
+           {type:'text',text:'Analyze this meal photo. First check if there is a scale reference visible (fork, spoon, hand, coin, standard plate edge) and use it to calibrate your size estimates — a standard fork is about 7-8 inches, a tablespoon is about 3 inches, a US quarter is about 1 inch. If no reference is visible, use the plate diameter (standard dinner plate is 10-11 inches, salad plate 7-8 inches) as your anchor. Identify every visible food item, estimate weight in grams based on your calibrated scale, and account for visible oils, sauces, and cooking method (fried, grilled, baked, raw). Use standard USDA nutrition values per 100g as your basis for calculations. Respond ONLY with a JSON object, no markdown, no explanation, no reasoning text. Format: {"description":"detailed list of food items with estimated grams and cooking method","calories":number,"protein_g":number,"carbs_g":number,"fat_g":number}'},
             {type:'image_url',image_url:{url:'data:'+file.type+';base64,'+b64}}
           ]}]
         })
