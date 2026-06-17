@@ -1954,7 +1954,7 @@ function handleMealPhoto(event){
     try{
       const resp=await fetch('https://api.anthropic.com/v1/messages',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
         body:JSON.stringify({
           model:'claude-sonnet-4-6',
           max_tokens:1000,
@@ -1964,6 +1964,7 @@ function handleMealPhoto(event){
           ]}]
         })
       });
+      if(!resp.ok){const errText=await resp.text();throw new Error('API '+resp.status+': '+errText.slice(0,100));}
       const data=await resp.json();
       const text=data.content[0].text.replace(/```json|```/g,'').trim();
       const parsed=JSON.parse(text);
@@ -1976,9 +1977,10 @@ function handleMealPhoto(event){
       document.getElementById('meal-loading').style.display='none';
       document.getElementById('meal-result').style.display='block';
     }catch(err){
+      console.error('CalTrack error:',err);
       document.getElementById('meal-loading').style.display='none';
       document.getElementById('scan-btn').style.display='flex';
-      document.getElementById('scan-btn').textContent='Error — try again';
+      document.getElementById('scan-btn').textContent='❌ '+err.message.slice(0,50)+' — tap to retry';
     }
     event.target.value='';
   };
