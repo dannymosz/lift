@@ -1952,19 +1952,23 @@ function handleMealPhoto(event){
     document.getElementById('meal-loading').style.display='block';
     document.getElementById('scan-btn').style.display='none';
     try{
-      const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AQ.Ab8RN6IODhDnJnZKQwsV8127t8mY7ItBZGBowNq-fmmKmB4QEw',{
+      const resp=await fetch('https://openrouter.ai/api/v1/chat/completions',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer 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'
+        },
         body:JSON.stringify({
-          contents:[{parts:[
-            {inline_data:{mime_type:file.type,data:b64}},
-            {text:'Analyze this meal photo and estimate the nutritional content. Respond ONLY with a JSON object, no markdown, no explanation. Format: {"description":"brief meal description","calories":number,"protein_g":number,"carbs_g":number,"fat_g":number}'}
+          model:'qwen/qwen2.5-vl-32b-instruct:free',
+          messages:[{role:'user',content:[
+            {type:'text',text:'Analyze this meal photo and estimate the nutritional content. Respond ONLY with a JSON object, no markdown, no explanation. Format: {"description":"brief meal description","calories":number,"protein_g":number,"carbs_g":number,"fat_g":number}'},
+            {type:'image_url',image_url:{url:'data:'+file.type+';base64,'+b64}}
           ]}]
         })
       });
       if(!resp.ok){const errText=await resp.text();throw new Error('API '+resp.status+': '+errText.slice(0,100));}
       const data=await resp.json();
-      const text=data.candidates[0].content.parts[0].text.replace(/```json|```/g,'').trim();
+      const text=data.choices[0].message.content.replace(/```json|```/g,'').trim();
       const parsed=JSON.parse(text);
       pendingMeal=parsed;
       document.getElementById('r-cals').textContent=parsed.calories;
