@@ -1961,7 +1961,7 @@ function handleMealPhoto(event){
         body:JSON.stringify({
           model:'meta-llama/llama-4-scout-17b-16e-instruct',
           messages:[{role:'user',content:[
-            {type:'text',text:'Analyze this meal photo and estimate the nutritional content. Respond ONLY with a JSON object, no markdown, no explanation. Format: {"description":"brief meal description","calories":number,"protein_g":number,"carbs_g":number,"fat_g":number}'},
+           {type:'text',text:'Analyze this meal photo carefully. First mentally identify: every visible food item, the approximate portion size of each relative to the plate/container, and the likely cooking method (fried, grilled, baked, raw, sauced, etc). Use standard USDA serving sizes as your baseline, then adjust up or down based on what you actually see. Be specific: a "large" portion of rice is roughly 1.5-2 cups cooked; a typical chicken breast is 6oz; a tablespoon of oil adds about 120 calories. Account for ALL visible components including sauces, oils, and garnishes. After this analysis, respond ONLY with a JSON object, no markdown, no explanation, no reasoning text. Format: {"description":"detailed list of all visible food items with estimated portions","calories":number,"protein_g":number,"carbs_g":number,"fat_g":number}'},
             {type:'image_url',image_url:{url:'data:'+file.type+';base64,'+b64}}
           ]}]
         })
