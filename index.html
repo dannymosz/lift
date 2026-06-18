@@ -2006,6 +2006,13 @@ function addMealToLog(){
   renderCalTrack();
   renderDashSleepCal();
 }
+function removeMeal(index){
+  const log=getFoodLog();
+  log.splice(index,1);
+  saveFoodLog(log);
+  renderCalTrack();
+  renderDashSleepCal();
+}
 
 function renderCalTrack(){
   const log=getFoodLog();
@@ -2021,7 +2028,7 @@ function renderCalTrack(){
   log.forEach((m,i)=>{
     const div=document.createElement('div');
     div.style.cssText='background:var(--surf);border-radius:var(--rs);padding:13px 16px;box-shadow:var(--shadow)';
-    div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:14px;font-weight:600;color:var(--text)">${m.description}</div><div style="font-size:12px;color:var(--muted)">${m.time}</div></div><div style="display:flex;gap:10px"><span style="font-size:12px;font-weight:600;color:var(--text)">${m.calories} kcal</span><span style="font-size:12px;color:var(--blue)">P: ${m.protein_g}g</span><span style="font-size:12px;color:var(--orange)">C: ${m.carbs_g}g</span><span style="font-size:12px;color:var(--gold)">F: ${m.fat_g}g</span></div>`;
+    div.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div style="font-size:14px;font-weight:600;color:var(--text)">${m.description}</div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><div style="font-size:12px;color:var(--muted)">${m.time}</div><button onclick="removeMeal(${i})" style="background:rgba(255,59,48,0.1);border:none;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--red);font-size:13px;font-weight:700;font-family:inherit;padding:0;line-height:1">✕</button></div></div><div style="display:flex;gap:10px"><span style="font-size:12px;font-weight:600;color:var(--text)">${m.calories} kcal</span><span style="font-size:12px;color:var(--blue)">P: ${m.protein_g}g</span><span style="font-size:12px;color:var(--orange)">C: ${m.carbs_g}g</span><span style="font-size:12px;color:var(--gold)">F: ${m.fat_g}g</span></div>`;
     list.appendChild(div);
   });
 }
