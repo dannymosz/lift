@@ -597,7 +597,7 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
   <div class="dash-bw-card">
     <div class="dash-bw-header">
       <div class="dash-bw-title">Bodyweight</div>
-      <div class="dash-bw-hint" onclick="showScreen('weight')">Log weight →</div>
+      <div class="dash-bw-hint" onclick="showScreen('health')">Log weight →</div>
     </div>
     <div class="dash-bw-stats">
       <div class="dash-bw-stat">
@@ -623,12 +623,12 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
 
   <!-- Sleep + Calories summary row -->
   <div class="stats-row" style="margin-top:14px">
-    <div class="stat-tile" style="cursor:pointer" onclick="showScreen('wellness')">
+    <div class="stat-tile" style="cursor:pointer" onclick="showScreen('health');switchHealthTab('sleep')">
       <div class="stat-tile-lbl">Sleep</div>
       <div class="stat-tile-val" id="dash-sleep-val">—</div>
       <div class="stat-tile-sub" id="dash-sleep-sub">tap to log</div>
     </div>
-    <div class="stat-tile" style="cursor:pointer" onclick="showScreen('caltrack')">
+    <div class="stat-tile" style="cursor:pointer" onclick="showScreen('health');switchHealthTab('nutrition')">
       <div class="stat-tile-lbl">Calories</div>
       <div class="stat-tile-val" id="dash-cal-val">—</div>
       <div class="stat-tile-sub" id="dash-cal-sub">tap to log</div>
@@ -746,11 +746,7 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
 <!-- ══════════════════════════════════════════════════ -->
 <!-- WEIGHT -->
 <!-- ══════════════════════════════════════════════════ -->
-<div id="s-weight" class="screen">
-  <div style="padding:56px 20px 16px">
-    <div class="pg-eyebrow">Track your body</div>
-    <div class="pg-title">Bodyweight</div>
-  </div>
+
   <div class="bw-log-card">
     <div class="bw-log-label">Log today's weight</div>
     <div class="bw-log-row">
@@ -813,11 +809,7 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
 <!-- ══════════════════════════════════════════════════ -->
 <!-- WELLNESS (Sleep) -->
 <!-- ══════════════════════════════════════════════════ -->
-<div id="s-wellness" class="screen">
-  <div style="padding:56px 20px 16px">
-    <div class="pg-eyebrow">Recovery</div>
-    <div class="pg-title">Sleep</div>
-  </div>
+
 
   <!-- Dial card -->
   <div style="margin:0 20px;background:var(--surf);border-radius:var(--r);padding:22px 18px 18px;box-shadow:var(--shadow)">
@@ -884,11 +876,7 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
 <!-- ══════════════════════════════════════════════════ -->
 <!-- CALTRACK -->
 <!-- ══════════════════════════════════════════════════ -->
-<div id="s-caltrack" class="screen">
-  <div style="padding:56px 20px 16px">
-    <div class="pg-eyebrow">Nutrition</div>
-    <div class="pg-title">CalTrack</div>
-  </div>
+
 
   <!-- Daily summary -->
   <div style="margin:0 20px;background:var(--surf);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)">
@@ -969,6 +957,137 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
     <div class="empty" style="padding:24px">No meals logged yet — scan a photo above</div>
   </div>
 </div>
+<div id="s-health" class="screen">
+  <div style="padding:56px 20px 14px">
+    <div class="pg-eyebrow">Body & recovery</div>
+    <div class="pg-title">Health</div>
+  </div>
+  <div class="prog-tabs" style="margin-bottom:0">
+    <div class="prog-tab active" id="ht-weight" onclick="switchHealthTab('weight')">Weight</div>
+    <div class="prog-tab" id="ht-sleep" onclick="switchHealthTab('sleep')">Sleep</div>
+    <div class="prog-tab" id="ht-nutrition" onclick="switchHealthTab('nutrition')">Nutrition</div>
+  </div>
+  <div id="health-weight-pane" class="tab-pane active" style="padding-top:16px">
+    <!-- weight content injected here by renderBWPage() -->
+    <div class="bw-log-card">
+      <div class="bw-log-label">Log today's weight</div>
+      <div class="bw-log-row">
+        <input class="bw-inp" id="bw-input" type="number" step="0.1" min="50" max="500" placeholder="—">
+        <span class="bw-unit">lbs</span>
+        <button class="bw-log-btn" onclick="logBodyweight('page')">Log</button>
+      </div>
+      <div class="bw-stats-row">
+        <div class="bw-stat"><div class="bw-stat-val" id="bw-current">—</div><div class="bw-stat-lbl">Today</div></div>
+        <div class="bw-stat"><div class="bw-stat-val" id="bw-avg">—</div><div class="bw-stat-lbl">7-day avg</div></div>
+        <div class="bw-stat"><div class="bw-stat-val" id="bw-change">—</div><div class="bw-stat-lbl">vs last wk</div></div>
+      </div>
+    </div>
+    <div class="sec-label">Last 30 days</div>
+    <div class="bw-chart-card">
+      <div class="bw-chart-box"><canvas id="bw-chart"></canvas></div>
+    </div>
+    <div class="sec-label">Log history</div>
+    <div class="bw-hist-list" id="bw-hist-wrap"></div>
+  </div>
+  <div id="health-sleep-pane" class="tab-pane">
+    <!-- sleep content from s-wellness, minus the header -->
+    <div style="margin:16px 20px 0;background:var(--surf);border-radius:var(--r);padding:22px 18px 18px;box-shadow:var(--shadow)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <div style="font-size:15px;font-weight:700;color:var(--text)">Last night</div>
+        <div style="font-size:12px;color:var(--blue);font-weight:600;cursor:pointer" onclick="saveSleepLog()">Log →</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+        <div id="sleep-dial-wrap" style="position:relative;width:220px;height:220px;cursor:pointer;touch-action:none;user-select:none">
+          <svg id="sleep-dial-svg" viewBox="0 0 220 220" style="position:absolute;inset:0;width:100%;height:100%">
+            <circle cx="110" cy="110" r="90" fill="none" stroke="var(--surf3)" stroke-width="18"/>
+            <circle id="sleep-arc" cx="110" cy="110" r="90" fill="none" stroke="var(--blue)" stroke-width="18"
+              stroke-linecap="round" stroke-dasharray="565.5" stroke-dashoffset="565.5"
+              transform="rotate(-90 110 110)"/>
+            <circle id="sleep-handle" cx="110" cy="20" r="11" fill="var(--blue)" stroke="var(--surf)" stroke-width="2.5"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;pointer-events:none">
+            <div id="sleep-h" style="font-size:46px;font-weight:800;color:var(--text);letter-spacing:-2px;line-height:1">0</div>
+            <div id="sleep-m" style="font-size:16px;font-weight:600;color:var(--muted);letter-spacing:-0.5px">00 min</div>
+            <div style="font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.06em">hours slept</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <button onclick="nudgeSleep(-1)" style="width:40px;height:40px;border-radius:50%;background:var(--surf2);border:1.5px solid var(--surf3);font-size:20px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:500">−</button>
+          <div style="font-size:12px;color:var(--muted);font-weight:500">± 1 min</div>
+          <button onclick="nudgeSleep(1)" style="width:40px;height:40px;border-radius:50%;background:var(--surf2);border:1.5px solid var(--surf3);font-size:20px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:500">+</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;margin-top:4px">
+          <div style="background:var(--surf2);border-radius:12px;padding:12px 8px;text-align:center">
+            <div style="font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.3px">8h</div>
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Target</div>
+          </div>
+          <div style="background:var(--surf2);border-radius:12px;padding:12px 8px;text-align:center">
+            <div style="font-size:17px;font-weight:800;letter-spacing:-0.3px" id="sleep-debt-val">—</div>
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Debt</div>
+          </div>
+          <div style="background:var(--surf2);border-radius:12px;padding:12px 8px;text-align:center">
+            <div style="font-size:17px;font-weight:800;letter-spacing:-0.3px" id="sleep-score-val">—</div>
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Score</div>
+          </div>
+        </div>
+        <button onclick="saveSleepLog()" style="width:100%;background:var(--text);color:var(--surf);border:none;border-radius:var(--r);padding:15px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:4px;transition:opacity .15s">Log Sleep</button>
+      </div>
+    </div>
+    <div class="sec-label">Last 7 nights</div>
+    <div style="margin:0 20px;background:var(--surf);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)">
+      <div style="position:relative;height:140px"><canvas id="sleep-chart"></canvas></div>
+    </div>
+    <div class="sec-label">History</div>
+    <div id="sleep-hist" style="padding:0 20px;display:flex;flex-direction:column;gap:7px;margin-bottom:24px"></div>
+  </div>
+  <div id="health-nutrition-pane" class="tab-pane">
+    <div style="margin:16px 20px 0;background:var(--surf);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow)">
+      <div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">Today</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+        <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.4px" id="ct-cals">0</div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">kcal</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--blue);letter-spacing:-0.4px" id="ct-protein">0g</div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Protein</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--orange);letter-spacing:-0.4px" id="ct-carbs">0g</div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Carbs</div></div>
+        <div style="text-align:center"><div style="font-size:22px;font-weight:800;color:var(--gold);letter-spacing:-0.4px" id="ct-fat">0g</div><div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Fat</div></div>
+      </div>
+    </div>
+    <div class="sec-label">Scan a meal</div>
+    <div style="margin:0 20px;background:var(--surf);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)">
+      <input type="file" id="meal-photo-input" accept="image/*" capture="environment" style="display:none" onchange="handleMealPhoto(event)">
+      <div style="background:rgba(52,120,246,0.08);border-radius:10px;padding:9px 12px;margin-bottom:14px;font-size:12px;color:var(--blue);display:flex;align-items:flex-start;gap:7px">
+        <span style="flex-shrink:0">💡</span>
+        <span>For better accuracy: shoot from directly above, and include a fork, spoon, or coin in frame for scale.</span>
+      </div>
+      <div id="meal-preview-wrap" style="display:none;margin-bottom:14px">
+        <img id="meal-preview" style="width:100%;border-radius:12px;max-height:220px;object-fit:cover">
+      </div>
+      <button onclick="document.getElementById('meal-photo-input').click()" style="width:100%;background:var(--surf2);border:1.5px dashed var(--muted2);border-radius:var(--r);padding:22px;font-size:15px;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px" id="scan-btn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Take a photo of your meal
+      </button>
+      <div id="meal-result" style="display:none;margin-top:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">AI Estimate</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+          <div style="background:var(--surf2);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--text)" id="r-cals">—</div><div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">kcal</div></div>
+          <div style="background:var(--surf2);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--blue)" id="r-protein">—</div><div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Protein</div></div>
+          <div style="background:var(--surf2);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--orange)" id="r-carbs">—</div><div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Carbs</div></div>
+          <div style="background:var(--surf2);border-radius:10px;padding:10px 6px;text-align:center"><div style="font-size:18px;font-weight:800;color:var(--gold)" id="r-fat">—</div><div style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px">Fat</div></div>
+        </div>
+        <div id="r-desc" style="font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:12px"></div>
+        <button onclick="addMealToLog()" style="width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--rs);padding:14px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Add to today's log</button>
+      </div>
+      <div id="meal-loading" style="display:none;text-align:center;padding:20px 0">
+        <div style="font-size:14px;color:var(--muted);font-weight:500">Analyzing your meal...</div>
+        <div style="margin-top:8px;height:3px;background:var(--surf3);border-radius:999px;overflow:hidden">
+          <div style="height:100%;background:var(--blue);border-radius:999px;animation:loadBar 1.5s ease-in-out infinite"></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec-label">Today's log</div>
+    <div id="food-log-list" style="padding:0 20px;display:flex;flex-direction:column;gap:7px;margin-bottom:24px">
+      <div class="empty" style="padding:24px">No meals logged yet — scan a photo above</div>
+    </div>
+  </div>
+</div>  
 <div class="rtimer" id="rtimer">
   <div class="rt-info"><div class="rt-lbl">Rest</div><div class="rt-time" id="rt-time">1:45</div></div>
   <div class="rt-bar-bg"><div class="rt-bar-fill" id="rt-fill" style="width:100%"></div></div>
@@ -1026,14 +1145,8 @@ body.dark #resume-slot > div{background:rgba(255,149,0,0.1) !important;border:1p
   <button class="nb" id="nb-trophies" onclick="showScreen('trophies')">
     <svg viewBox="0 0 24 24"><use href="#nav-trophy"/></svg><span>Trophies</span>
   </button>
-  <button class="nb" id="nb-weight" onclick="showScreen('weight')">
-    <svg viewBox="0 0 24 24"><use href="#nav-weight"/></svg><span>Weight</span>
-  </button>
-  <button class="nb" id="nb-wellness" onclick="showScreen('wellness')">
-    <svg viewBox="0 0 24 24"><use href="#nav-wellness"/></svg><span>Sleep</span>
-  </button>
-  <button class="nb" id="nb-caltrack" onclick="showScreen('caltrack')">
-    <svg viewBox="0 0 24 24"><use href="#nav-caltrack"/></svg><span>Nutrition</span>
+  <button class="nb" id="nb-health" onclick="showScreen('health')">
+    <svg viewBox="0 0 24 24"><use href="#nav-wellness"/></svg><span>Health</span>
   </button>
   <button class="nb" id="nb-settings" onclick="showScreen('settings')">
     <svg viewBox="0 0 24 24"><use href="#nav-settings"/></svg><span>Settings</span>
@@ -1168,7 +1281,16 @@ function showLevelUp(lv,name,xp){
 function closeLevelUp(){document.getElementById('lvlup-overlay').classList.remove('vis')}
 
 function getTodayPlanId(){return{0:'push',1:'pull',2:'shoulders',3:'push2',4:'pull-opt',5:'rest1',6:'legs'}[new Date().getDay()]}
-
+function switchHealthTab(tab){
+  document.querySelectorAll('#s-health .prog-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('ht-'+tab).classList.add('active');
+  document.getElementById('health-weight-pane').classList.toggle('active',tab==='weight');
+  document.getElementById('health-sleep-pane').classList.toggle('active',tab==='sleep');
+  document.getElementById('health-nutrition-pane').classList.toggle('active',tab==='nutrition');
+  if(tab==='sleep'){renderWellness();}
+  if(tab==='nutrition'){renderCalTrack();}
+  if(tab==='weight'){renderBWPage();}
+}
 // ═══════════════════════════════════════════
 // HAPTICS
 // ═══════════════════════════════════════════
@@ -1739,10 +1861,8 @@ function showScreen(name){
   if(name==='workout-select')renderWorkoutSelect();
   if(name==='progress')renderProgress();
   if(name==='trophies')renderTrophies();
-  if(name==='weight')renderBWPage();
+  if(name==='health'){switchHealthTab('weight');}
   if(name==='settings')renderSettings();
-  if(name==='wellness')renderWellness();
-  if(name==='caltrack')renderCalTrack();
 }
 
 // ═══════════════════════════════════════════
